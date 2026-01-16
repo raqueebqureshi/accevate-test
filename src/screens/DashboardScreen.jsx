@@ -46,6 +46,9 @@ export default function DashboardScreen({ navigation }) {
         setDashboardData(data)
       } else {
         Alert.alert("Error", data.msg || "Failed to load dashboard")
+        if (!token) {
+        navigation.replace("Login")
+      }
       }
     } catch (error) {
       Alert.alert("Error", "Network error. Please try again.")
@@ -74,7 +77,7 @@ export default function DashboardScreen({ navigation }) {
     return (
       <View style={styles.loadingContainer}>
         <ActivityIndicator size="large" color="#AA4948" />
-        <Text style={styles.loadingText}>Loading Dashboard...</Text>
+        <Text style={styles.loadingText}>Loading Dashboard..</Text>
       </View>
     )
   }
@@ -83,9 +86,22 @@ export default function DashboardScreen({ navigation }) {
     return (
       <View style={styles.errorContainer}>
         <Text style={styles.errorText}>Failed to load dashboard</Text>
-        <TouchableOpacity style={styles.retryButton} onPress={fetchDashboardData}>
-          <Text style={styles.retryButtonText}>Retry</Text>
-        </TouchableOpacity>
+        <View style={styles.buttonRow}>
+  <TouchableOpacity
+    style={styles.retryButton}
+    onPress={fetchDashboardData}
+  >
+    <Text style={styles.retryButtonText}>Retry</Text>
+  </TouchableOpacity>
+
+  <TouchableOpacity
+    style={styles.retryButton}
+    onPress={handleLogout}
+  >
+    <Text style={styles.retryButtonText}>Log out</Text>
+  </TouchableOpacity>
+</View>
+
       </View>
     )
   }
@@ -117,7 +133,7 @@ export default function DashboardScreen({ navigation }) {
         </View>
       </View>
 
-      <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
+      <ScrollView style={[styles.content, { backgroundColor: themeColor }]} showsVerticalScrollIndicator={false}>
         {carousel.length > 0 && (
           <View style={styles.carouselContainer}>
             <ScrollView
@@ -142,7 +158,7 @@ export default function DashboardScreen({ navigation }) {
                   key={index}
                   style={[
                     styles.paginationDot,
-                    activeSlide === index && [styles.paginationDotActive, { backgroundColor: themeColor }],
+                    activeSlide === index && [styles.paginationDotActive, { backgroundColor: "#ffffff" }],
                   ]}
                 />
               ))}
@@ -311,6 +327,12 @@ const styles = StyleSheet.create({
     color: "#666",
     fontWeight: "500",
   },
+  buttonRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between', 
+    gap: 12, 
+    marginTop: 16,
+  },
   errorContainer: {
     flex: 1,
     justifyContent: "center",
@@ -320,6 +342,7 @@ const styles = StyleSheet.create({
   },
   errorText: {
     fontSize: 16,
+    fontWeight: 600,
     color: "#666",
     marginBottom: 20,
     textAlign: "center",
@@ -344,8 +367,8 @@ const styles = StyleSheet.create({
     paddingTop: 50,
     paddingBottom: 30,
     paddingHorizontal: 20,
-    borderBottomLeftRadius: 30,
-    borderBottomRightRadius: 30,
+    // borderBottomLeftRadius: 30,
+    // borderBottomRightRadius: 30,
     elevation: 8,
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 4 },
@@ -436,7 +459,7 @@ const styles = StyleSheet.create({
   paginationDot: {
     width: 8,
     height: 8,
-    borderRadius: 4,
+    borderRadius: 5,
     backgroundColor: "#D1D5DB",
     marginHorizontal: 4,
   },
@@ -449,7 +472,8 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: 20,
     fontWeight: "bold",
-    color: "#1F2937",
+    // color: "#1F2937",
+    color: "#ffffff",
     marginBottom: 16,
   },
   statsRow: {
