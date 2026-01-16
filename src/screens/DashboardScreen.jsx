@@ -12,6 +12,8 @@ import {
   Alert,
 } from "react-native"
 import AsyncStorage from "@react-native-async-storage/async-storage"
+import { RefreshControl } from "react-native"
+
 
 const { width } = Dimensions.get("window")
 
@@ -19,6 +21,8 @@ export default function DashboardScreen({ navigation }) {
   const [dashboardData, setDashboardData] = useState(null)
   const [loading, setLoading] = useState(true)
   const [activeSlide, setActiveSlide] = useState(0)
+  const [refreshing, setRefreshing] = useState(false)
+
 
   useEffect(() => {
     fetchDashboardData()
@@ -26,6 +30,7 @@ export default function DashboardScreen({ navigation }) {
 
   const fetchDashboardData = async () => {
     try {
+      setRefreshing(true)
       const token = await AsyncStorage.getItem("authToken")
 
       if (!token) {
@@ -45,7 +50,8 @@ export default function DashboardScreen({ navigation }) {
       if (data.status) {
         setDashboardData(data)
       } else {
-        Alert.alert("Error", data.msg || "Failed to load dashboard")
+        Alert.alert("Error", data.msg || "Failed to load dashboard.")
+
         if (!token) {
         navigation.replace("Login")
       }
@@ -55,6 +61,7 @@ export default function DashboardScreen({ navigation }) {
       console.error("Dashboard fetch error:", error)
     } finally {
       setLoading(false)
+      setRefreshing(false)
     }
   }
 
@@ -95,10 +102,10 @@ export default function DashboardScreen({ navigation }) {
   </TouchableOpacity>
 
   <TouchableOpacity
-    style={styles.retryButton}
+    style={styles.errorlogoutButton}
     onPress={handleLogout}
   >
-    <Text style={styles.retryButtonText}>Log out</Text>
+    <Text style={styles.errorlogoutButtonText}>Log out</Text>
   </TouchableOpacity>
 </View>
 
@@ -133,7 +140,16 @@ export default function DashboardScreen({ navigation }) {
         </View>
       </View>
 
-      <ScrollView style={[styles.content, { backgroundColor: themeColor }]} showsVerticalScrollIndicator={false}>
+      <ScrollView style={[styles.content, { backgroundColor: themeColor }]} showsVerticalScrollIndicator={false}
+       refreshControl={
+    <RefreshControl
+      refreshing={refreshing}
+      onRefresh={fetchDashboardData}
+      colors={["#AA4948"]}     
+      tintColor="#AA4948" 
+    />
+  }
+      >
         {carousel.length > 0 && (
           <View style={styles.carouselContainer}>
             <ScrollView
@@ -348,7 +364,7 @@ const styles = StyleSheet.create({
     textAlign: "center",
   },
   retryButton: {
-    backgroundColor: "#AA4948",
+    backgroundColor: "#1E3D95",
     paddingHorizontal: 32,
     paddingVertical: 12,
     borderRadius: 12,
@@ -363,8 +379,24 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: "600",
   },
+  errorlogoutButton: {
+    backgroundColor: "#AA4948",
+    paddingHorizontal: 32,
+    paddingVertical: 12,
+    borderRadius: 12,
+    elevation: 3,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+  },
+  errorlogoutButtonText: {
+    color: "#fff",
+    fontSize: 16,
+    fontWeight: "600",
+  },
   header: {
-    paddingTop: 50,
+    paddingTop: 30,
     paddingBottom: 30,
     paddingHorizontal: 20,
     // borderBottomLeftRadius: 30,
